@@ -444,6 +444,8 @@ func createHyperPod(f factory.Factory, spec *specs.Spec, defaultCpus int, defaul
 
 	kernel := chooseKernel(spec)
 	initrd := chooseInitrd(spec)
+	kernel = "/home/ist/code/hypercontainer/hyperstart/build/kernel"
+	initrd = "/home/ist/code/hypercontainer/hyperstart/build/hyper-initrd.img"
 	glog.V(3).Infof("Using kernel: %s; Initrd: %s; vCPU: %d; Memory %d", kernel, initrd, cpu, mem)
 
 	var (

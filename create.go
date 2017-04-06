@@ -216,6 +216,7 @@ func runContainer(context *cli.Context, createOnly bool) {
 				args = append(args, "--"+goption, abs_path)
 			}
 		}
+		namespace = "/run/runv-namespace-552350699"
 		args = append(args,
 			"containerd", "--solo-namespaced",
 			"--containerd-dir", namespace,
@@ -230,23 +231,26 @@ func runContainer(context *cli.Context, createOnly bool) {
 		cmd.SysProcAttr = &syscall.SysProcAttr{
 			Setsid: true,
 		}
-		err = cmd.Start()
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "failed to launch runv containerd: %v\n", err)
-			os.Exit(-1)
-		}
+		// err = cmd.Start()
+		// fmt.Println(cmd.Args)
+		// if err != nil {
+		// 	fmt.Fprintf(os.Stderr, "failed to launch runv containerd: %v\n", err)
+		// 	os.Exit(-1)
+		// }
 		if _, err = os.Stat(filepath.Join(namespace, "namespaced.sock")); os.IsNotExist(err) {
 			time.Sleep(3 * time.Second)
 		}
 	}
 
 	address := filepath.Join(namespace, "namespaced.sock")
+	fmt.Println("Before createContainer", address)
 	err = createContainer(context, container, address, spec)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error %v\n", err)
 		cmd.Process.Signal(syscall.SIGINT)
 		os.Exit(-1)
 	}
+	fmt.Println("createContainer")
 	err = os.Symlink(namespace, filepath.Join(root, container, "namespace"))
 	if err != nil {
 		cmd.Process.Signal(syscall.SIGINT)
